@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import msvcrt
+import pickle
 
 from library.event import *
 
@@ -33,6 +34,14 @@ def help_screen():
   print "|  save:                    Save the data.                     |"
   print "|  q:                       Quit and Save data.                |"
   print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+def select(context, path, number):
+  number = number - 1
+  item = context.get_item(number)
+  if item is not None:
+    path.append(item)
+    return item
+  return context
 
 class dataThread(threading.Thread):
   def __init__(self, name, data, lock):
@@ -86,7 +95,8 @@ class dataThread(threading.Thread):
     try:
       f = open('event.pkl', 'rb')
       root = pickle.load(f)
-    except:
+    except IOError:
+      print 'except'
       root = Event()
     context = root
     path.append(root)
@@ -94,9 +104,23 @@ class dataThread(threading.Thread):
     while user_input != 'q' and user_input != 'Q':
       print_path(path)
       print_prompt()
-      user_input = raw_input()
+      user_input = sys.stdin.readline()
+      user_input = user_input[:-1]
       parts = user_input.split(' ')
       if(string_compare(parts[0], 'help') or string_compare(parts[0], 'h')
           or string_compare(parts[0], '?')):
         help_screen()
+      elif string_compare(parts[0], 'list') or string_compare(parts[0], 'ls'):
+        context.list_object()
+      elif string_compare(parts[0], 'select'):
+        if len(parts) == 1:
+          print "Usage: select line_number."
+          continue
+        try:
+          number = int(parts[1])
+        except ValueError:
+          print "'select' command takes an integer."
+          continue
+        context = select(context, path, number)
+
     

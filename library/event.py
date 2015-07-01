@@ -17,6 +17,17 @@ class Event(object):
     self.number_of_entrants += 1
     self.entrants.add_entrant(entrant)
 
+  def list_object(self):
+    print "1. Entrants"
+    print "2. Tournaments"
+
+  def get_item(self, number):
+    if number == 0:
+      return self.entrants
+    elif number == 1:
+      return self.tournaments
+    return None
+
 class Entrants(object):
   def __init__(self):
     self.name = 'Entrants'
@@ -24,6 +35,10 @@ class Entrants(object):
 
   def add_entrant(self, entrant):
     self.entrants.append(entrant)
+
+  def list_object(self):
+    for i, j in enumerate(self.entrants):
+      print str(i + 1) + ": " + j.get_name()
 
 class Entrant(object):
   def __init__(self, event, name='', tag='', location=''):
@@ -41,6 +56,9 @@ class Entrant(object):
     self.tournaments_parents.append(tournament.parent)
     self.amount_owed += tournament.price
 
+  def get_name(self):
+    return self.name
+
 class Tournaments(object):
   def __init__(self):
     self.name = 'Tournaments'
@@ -48,6 +66,10 @@ class Tournaments(object):
 
   def add_tournament(self, tournament):
     self.tournaments.append(tournament)
+
+  def list_object(self):
+    for i, j in enumerate(self.tournaments):
+      print str(i + 1) + ": " + j.get_name() 
 
 class Tournament(object):
   """Data about a tournament at an event.
@@ -65,6 +87,9 @@ class Tournament(object):
 
   def add_entrant(self, entrant):
     self.entrants.append(entrant)
+
+  def get_name(self):
+    return self.name
 
 class Tournament_Entrant(Tournament):
   """Data about a tournament but specific to an entrant.

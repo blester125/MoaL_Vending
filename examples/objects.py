@@ -131,14 +131,10 @@ def main():
     ## Help command.
     if(string_compare(parts[0], 'help') or string_compare(parts[0], 'h')
          or string_compare(parts[0], '?')):
-      help_screen()
-
-
-
-      
+      help_screen()      
     ## List command.
     elif string_compare(parts[0], 'list') or string_compare(parts[0], 'ls'):
-      context.list_object()
+      context.list_object()  
     ## Select command.
     elif string_compare(parts[0], 'select'):
       if len(parts) == 1:
@@ -150,6 +146,8 @@ def main():
         print "'select' command takes an integer."
         continue
       context = select(context, path, number - 1)
+
+      
     ## Back command.
     elif string_compare(parts[0], 'back'):
       if len(path) <= 1:
