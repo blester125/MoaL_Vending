@@ -145,9 +145,7 @@ def main():
       except:
         print "'select' command takes an integer."
         continue
-      context = select(context, path, number - 1)
-
-      
+      context = select(context, path, number - 1)      
     ## Back command.
     elif string_compare(parts[0], 'back'):
       if len(path) <= 1:
@@ -178,6 +176,7 @@ def main():
     ## Add command.
     elif string_compare(parts[0], 'add'):
       context.add()
+
     ## Save command.
     elif string_compare(parts[0], 'save'):
       pickle.dump(root, open("ex_data_base.pkl", "wb"), -1)

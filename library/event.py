@@ -17,6 +17,9 @@ class Event(object):
     self.number_of_entrants += 1
     self.entrants.add_entrant(entrant)
 
+  def get_name(self):
+    return self.name
+
   def list_object(self):
     print "1. Entrants"
     print "2. Tournaments"
@@ -38,7 +41,17 @@ class Entrants(object):
 
   def list_object(self):
     for i, j in enumerate(self.entrants):
-      print str(i + 1) + ": " + j.get_name()
+      print str(i + 1) + ": " + j.get_tag()
+
+  def get_name(self):
+    return self.name
+
+  def get_item(self, number):
+    try:
+      return self.entrants[number]
+    except IndexError:
+      print "Entrant " + str(number + 1) + " does not exist"
+      return None
 
 class Entrant(object):
   def __init__(self, event, name='', tag='', location=''):
@@ -59,6 +72,24 @@ class Entrant(object):
   def get_name(self):
     return self.name
 
+  def get_tag(self):
+    return self.tag
+
+  def list_object(self):
+    print "1. Name:        " + self.name
+    print "2. Tag:         " + self.tag
+    print "3. Location:    " + self.location
+    print "4. Number:      " + str(self.number)
+    print "5. Total Cost:  " + str(self.amount_owed)
+    print "6. Tournaments: "
+    for i, j in enumerate(self.tournaments):
+      print "  " + str(i + 1) + ": " + j.get_name()
+      if j.get_team():
+        print "    Teammate: " + j.get_teammate()
+
+  def get_item(self, number):
+    print "Nothing is selectable in this context."
+ 
 class Tournaments(object):
   def __init__(self):
     self.name = 'Tournaments'
@@ -67,9 +98,19 @@ class Tournaments(object):
   def add_tournament(self, tournament):
     self.tournaments.append(tournament)
 
+  def get_name(self):
+    return self.name
+
   def list_object(self):
     for i, j in enumerate(self.tournaments):
       print str(i + 1) + ": " + j.get_name() 
+
+  def get_item(self, number):
+    try:
+      return self.tournaments[number]
+    except IndexError:
+      print 'Tournament ' + str(number + 1) + ' does not exist'
+      return None
 
 class Tournament(object):
   """Data about a tournament at an event.
@@ -87,9 +128,22 @@ class Tournament(object):
 
   def add_entrant(self, entrant):
     self.entrants.append(entrant)
+    self.total += self.price
 
   def get_name(self):
     return self.name
+
+  def get_team(self):
+    return self.team
+
+  def list_object(self):
+    print "1. Name:        " + self.name
+    print "2. Price:       " + str(self.price)
+    print "3. Total Price: " + str(self.total)
+    print "4. Team Event?  " + str(self.team)
+    print "5. Entrants:    "
+    for i in self.entrants:
+      print "    " + i.get_tag() 
 
 class Tournament_Entrant(Tournament):
   """Data about a tournament but specific to an entrant.
@@ -107,3 +161,6 @@ class Tournament_Entrant(Tournament):
     self.teammate = teammate
     entrant.add_tournament(self)
     self.parent.add_entrant(entrant)
+
+  def get_teammate(self):
+    return self.teammate

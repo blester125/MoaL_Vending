@@ -11,10 +11,18 @@ exitFlag = 0
 
 def print_path(path):
   for i in path:
-    sys.stdout.write(i.name + '/')
+    if isinstance(i, Entrant):
+      word = i.get_tag()
+    else:
+      word = i.get_name()
+    sys.stdout.write(word + '/')
 
 def print_prompt():
   sys.stdout.write("$ ")
+
+def back(path):
+  path.pop()
+  return path[-1]
 
 def string_compare(string1, string2):
   if string1.upper() == string2.upper():
@@ -22,18 +30,18 @@ def string_compare(string1, string2):
   return False
 
 def help_screen():
-  print "~~~~~~~~~~~~~~~~~~~~~~~Simple Data Edits~~~~~~~~~~~~~~~~~~~~~~~~"
-  print "|Avaiable commands:                                            |"
-  print "|  help | h | ?:            Display this screen.               |"
-  print "|  list | ls:               Displays list of the current data. |"
-  print "|  select line_number:      Select a data object to examine it.|"
-  print "|  remove | rm line_number: Remove the data at a line number.  |" 
-  print "|  edit line_number:        Edit the data at line_number.      |"
-  print "|  back:                    Return to the last peice of data.  |"
-  print "|  add:                     Add a peice of data.               |"
-  print "|  save:                    Save the data.                     |"
-  print "|  q:                       Quit and Save data.                |"
-  print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  print "~~~~~~~~~~~~~~~~~~~~~~~Simple Data Edits~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  print "|Avaiable commands:                                              |"
+  print "|  help | h | ?:             Display this screen.                |"
+  print "|  list | ls:                Displays list of the current data.  |"
+  print "|  select | cd line_number:  Select a data object to examine it. |"
+  print "|  remove | rm line_number:  Remove the data at a line number.   |" 
+  print "|  edit line_number:         Edit the data at line_number.       |"
+  print "|  back:                     Return to the last peice of data.   |"
+  print "|  add:                      Add a peice of data.                |"
+  print "|  save:                     Save the data.                      |"
+  print "|  q:                        Quit and Save data.                 |"
+  print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 def select(context, path, number):
   number = number - 1
@@ -55,7 +63,7 @@ class dataThread(threading.Thread):
   def run(self):
     print "Starting Thread: " + self.name
     self.access_data_base()
-    print "Ending Thread: " + self.name
+    print "\nEnding Thread: " + self.name
 
   def access_data_base(self):
     while not self.exitFlag:
@@ -96,7 +104,6 @@ class dataThread(threading.Thread):
       f = open('event.pkl', 'rb')
       root = pickle.load(f)
     except IOError:
-      print 'except'
       root = Event()
     context = root
     path.append(root)
@@ -106,13 +113,15 @@ class dataThread(threading.Thread):
       print_prompt()
       user_input = sys.stdin.readline()
       user_input = user_input[:-1]
+      user_input = user_input.strip()
       parts = user_input.split(' ')
       if(string_compare(parts[0], 'help') or string_compare(parts[0], 'h')
           or string_compare(parts[0], '?')):
         help_screen()
       elif string_compare(parts[0], 'list') or string_compare(parts[0], 'ls'):
         context.list_object()
-      elif string_compare(parts[0], 'select'):
+      elif (string_compare(parts[0], 'select') 
+              or string_compare(parts[0], 'cd')):
         if len(parts) == 1:
           print "Usage: select line_number."
           continue
@@ -122,5 +131,14 @@ class dataThread(threading.Thread):
           print "'select' command takes an integer."
           continue
         context = select(context, path, number)
-
-    
+      elif string_compare(parts[0], 'back'):
+        if len(path) == 1:
+          continue
+        context = back(path)
+      elif string_compare(parts[0], 'save'):
+        pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)
+        print "Data has been saved."
+      elif not(string_compare(parts[0], 'q') 
+                and string_compare(parts[0], 'Q')):
+        print (parts[0] + ' is not a valid command.  '
+          'Enter help for a list of commands.')
