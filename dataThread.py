@@ -124,7 +124,7 @@ class dataThread(threading.Thread):
               or string_compare(parts[0], 'cd')):
         if len(parts) == 1:
           print "Usage: select line_number."
-          continue
+          continuegit 
         try:
           number = int(parts[1])
         except ValueError:
@@ -135,10 +135,12 @@ class dataThread(threading.Thread):
         if len(path) == 1:
           continue
         context = back(path)
+      elif string_compare(parts[0], 'edit'):
+        context.edit()
       elif string_compare(parts[0], 'save'):
         pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)
         print "Data has been saved."
       elif not(string_compare(parts[0], 'q') 
                 and string_compare(parts[0], 'Q')):
-        print (parts[0] + ' is not a valid command.  '
-          'Enter help for a list of commands.')
+        print (parts[0] + " is not a valid command.  "
+          "Enter 'help' for a list of commands.")

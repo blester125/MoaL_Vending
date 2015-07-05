@@ -1,3 +1,5 @@
+import sys
+
 class Event(object):
   def __init__(self, name='', TO='', date=''):
     self.name = name
@@ -31,6 +33,9 @@ class Event(object):
       return self.tournaments
     return None
 
+  def edit(self):
+    print 'Nothing to edit in this context.'
+
 class Entrants(object):
   def __init__(self):
     self.name = 'Entrants'
@@ -52,6 +57,9 @@ class Entrants(object):
     except IndexError:
       print "Entrant " + str(number + 1) + " does not exist"
       return None
+
+  def edit(self):
+    print "Nothing to edit in this context."
 
 class Entrant(object):
   def __init__(self, event, name='', tag='', location=''):
@@ -90,6 +98,39 @@ class Entrant(object):
   def get_item(self, number):
     print "Nothing is selectable in this context."
  
+  def edit(self):
+    print "1. Name"
+    print "2. Tag"
+    print "3. Location"
+    print "Enter the line number you would like to edit: ",
+    number = sys.stdin.readline()
+    number = number[:-1]
+    try:
+      number = int(number)
+    except ValueError:
+      print "You need to enter a number."
+      return
+    if number == 1:
+      print "Enter A New Name: ",
+      name = sys.stdin.readline()
+      if name[:-1] == "":
+        return
+      self.name = name[:-1]
+    elif number == 2:
+      print "Enter A New Tag: ",
+      tag = sys.stdin.readline()
+      if tag[:-1] == "":
+        return
+      self.tag = tag[:-1]
+    elif number == 3:
+      print "Enter A New Location: ",
+      loc = sys.stdin.readline()
+      if loc[:-1] == "":
+        return
+      self.location = loc[:-1]
+    else:
+      print "Enter a number between 1 and 3."
+
 class Tournaments(object):
   def __init__(self):
     self.name = 'Tournaments'
@@ -111,6 +152,9 @@ class Tournaments(object):
     except IndexError:
       print 'Tournament ' + str(number + 1) + ' does not exist'
       return None
+
+  def edit(self):
+    print "Nothing to edit in this context."
 
 class Tournament(object):
   """Data about a tournament at an event.
@@ -145,6 +189,12 @@ class Tournament(object):
     for i in self.entrants:
       print "    " + i.get_tag() 
 
+  def get_item(self, number):
+    print 'Nothing to select in this context.'
+
+  def edit(self):
+    print "Nothing to edit in this context."
+
 class Tournament_Entrant(Tournament):
   """Data about a tournament but specific to an entrant.
 
@@ -164,3 +214,6 @@ class Tournament_Entrant(Tournament):
 
   def get_teammate(self):
     return self.teammate
+
+  def edit(self):
+    print "Nothing to edit in this context."
