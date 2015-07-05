@@ -36,9 +36,8 @@ def help_screen():
   print "|  list | ls:                Displays list of the current data.  |"
   print "|  select | cd line_number:  Select a data object to examine it. |"
   print "|  remove | rm line_number:  Remove the data at a line number.   |" 
-  print "|  edit line_number:         Edit the data at line_number.       |"
+  print "|  edit (Entrant only):      Edit the data of an Entrant.        |"
   print "|  back:                     Return to the last peice of data.   |"
-  print "|  add:                      Add a peice of data.                |"
   print "|  save:                     Save the data.                      |"
   print "|  q:                        Quit and Save data.                 |"
   print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -144,3 +143,4 @@ class dataThread(threading.Thread):
                 and string_compare(parts[0], 'Q')):
         print (parts[0] + " is not a valid command.  "
           "Enter 'help' for a list of commands.")
+    pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)
