@@ -94,7 +94,6 @@ class dataThread(threading.Thread):
       return ''
 
   def start_data_base(self):
-    print "In database so quitting the GUI can't close me now."
     root = ''
     context = '' 
     path = []
