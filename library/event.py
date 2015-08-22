@@ -36,6 +36,9 @@ class Event(object):
   def edit(self):
     print 'Nothing to edit in this context.'
 
+  def add(self):
+    print 'Nothing to add in this context'
+
 class Entrants(object):
   def __init__(self):
     self.name = 'Entrants'
@@ -60,6 +63,9 @@ class Entrants(object):
 
   def edit(self):
     print "Nothing to edit in this context."
+
+  def add(self):
+    print 'Nothing to add in this context'
 
 class Entrant(object):
   def __init__(self, event, name='', tag='', location=''):
@@ -131,6 +137,12 @@ class Entrant(object):
     else:
       print "Enter a number between 1 and 3."
 
+  def add(self):
+    print "Enter the new teammate name."
+    teammate = sys.stdin.readline()
+    teammate = teammate[:-1]
+    
+
 class Tournaments(object):
   def __init__(self):
     self.name = 'Tournaments'
@@ -155,6 +167,9 @@ class Tournaments(object):
 
   def edit(self):
     print "Nothing to edit in this context."
+
+  def add(self):
+    print 'Nothing to add in this context'
 
 class Tournament(object):
   """Data about a tournament at an event.
@@ -195,6 +210,9 @@ class Tournament(object):
   def edit(self):
     print "Nothing to edit in this context."
 
+  def add(self):
+    print 'Nothing to add in this context'
+
 class Tournament_Entrant(Tournament):
   """Data about a tournament but specific to an entrant.
 
@@ -217,3 +235,6 @@ class Tournament_Entrant(Tournament):
 
   def edit(self):
     print "Nothing to edit in this context."
+
+  def add(self):
+    print 'Nothing to add in this context'

@@ -97,12 +97,7 @@ class dataThread(threading.Thread):
     root = ''
     context = '' 
     path = []
-    ## will be the data from the GUI instead.
-    try:
-      f = open('event.pkl', 'rb')
-      root = pickle.load(f)
-    except IOError:
-      root = Event()
+    root = self.data
     context = root
     path.append(root)
     user_input = ''
@@ -138,8 +133,10 @@ class dataThread(threading.Thread):
       elif string_compare(parts[0], 'save'):
         pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)
         print "Data has been saved."
+      elif string_compare(parts[0], 'add'):
+        context.add()
       elif not(string_compare(parts[0], 'q') 
                 and string_compare(parts[0], 'Q')):
         print (parts[0] + " is not a valid command.  "
           "Enter 'help' for a list of commands.")
-    pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)
+   ## pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)

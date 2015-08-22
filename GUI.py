@@ -1,7 +1,9 @@
 import Tkinter as tk
-import time
+import pickle
 
 from dataThread import dataThread
+
+from library.event import *
 
 class GUI(tk.Tk):
   def __init__(self, parent):
@@ -15,7 +17,8 @@ class GUI(tk.Tk):
     self.bind('<F11>', self.toggle_fullscreen)
     self.bind('<Escape>', self.disable_fullscreen)
     lock = ''
-    self.data = []
+    #create event and venue and doubles singles etc.
+    self.event = pickle.load(open("MoaL.pkl", "rb"))
     self.singles = tk.IntVar()
     self.doubles = tk.IntVar()
     self.name_label = tk.Label(self, text="Name:", anchor='e', 
@@ -59,7 +62,7 @@ class GUI(tk.Tk):
     self.pitt_logo = tk.Label(self, image=pitt_smash_photo)
     self.pitt_logo.photo = pitt_smash_photo
     self.pitt_logo.grid(row=3, column=3, rowspan=4)
-    self.thread = dataThread('test', self.data, lock)
+    self.thread = dataThread('test', self.event, lock)
     self.thread.start()
 
   def toggle_fullscreen(self, event=None):
@@ -78,7 +81,26 @@ class GUI(tk.Tk):
       self.teammate_entry.configure(state='normal')
 
   def register(self):
-    pass
+    name = self.name_entry.get()
+    tag = self.tag_entry.get()
+    location = self.loc_entry.get()
+    if name == '' or tag == '' or location == '':
+      return
+    entrant = Entrant(self.event, name, tag, location)
+    Tournament_Entrant(self.event.tournaments.tournaments[0], entrant)
+    #Tournament_Entrant(venue, entrant)
+    if self.singles.get() == 1:
+      Tournament_Entrant(self.event.tournaments.tournaments[1], entrant)
+      #Tournament_Entrant(singles, entrant)
+    if self.doubles.get() == 1:
+      mate = self.teammate_entry.get()
+      Tournament_Entrant(self.event.tournaments.tournaments[2], entrant, mate)
+      #Tournament_Entrant(doubles, entrant)
+    self.name_entry.delete(0, 'end')
+    self.tag_entry.delete(0, 'end')
+    self.loc_entry.delete(0, 'end')
+    self.teammate_entry.delete(0, 'end')
+    #pickle.dump(self.event, open("MoaL.pkl", "wb"), -1)
 
   def close(self):
     self.thread.exitFlag = 1
