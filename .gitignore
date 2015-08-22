@@ -1,0 +1,5 @@
+examples
+*.pyc
+*.pkl
+example_data.py
+library/*.pyc
