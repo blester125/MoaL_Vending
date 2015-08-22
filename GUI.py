@@ -1,8 +1,9 @@
 import Tkinter as tk
 import pickle
 
-from dataThread import dataThread
+from PIL import Image, ImageTk
 
+from dataThread import dataThread
 from library.event import *
 
 class GUI(tk.Tk):
@@ -17,51 +18,56 @@ class GUI(tk.Tk):
     self.bind('<F11>', self.toggle_fullscreen)
     self.bind('<Escape>', self.disable_fullscreen)
     lock = ''
-    #create event and venue and doubles singles etc.
+    # Create event and venue and doubles singles etc.
     self.event = pickle.load(open("MoaL.pkl", "rb"))
-    self.singles = tk.IntVar()
-    self.doubles = tk.IntVar()
-    self.name_label = tk.Label(self, text="Name:", anchor='e', 
-                                 justify='right', font=("MS Gothic", 68))
-    self.name_label.grid(row=0, column=0, sticky='NSEW')
-    self.name_entry = tk.Entry(self, width=22, font=("MS Gothic", 68))
-    self.name_entry.grid(row=0, column=1, sticky='EW')
-    self.tag_label = tk.Label(self, text="Tag:", anchor='e', justify='left',
-                                font=("MS Gothic", 72))
-    self.tag_label.grid(row=1, column=0, sticky='NSEW')            
-    self.tag_entry = tk.Entry(self, width=22, font=("MS Gothic", 68))
-    self.tag_entry.grid(row=1, column=1, sticky='EW')
-    self.loc_label = tk.Label(self, text="Location:", anchor='e', 
-                               justify='right', font=("MS Gothic", 68))
-    self.loc_label.grid(row=2, column=0, sticky='NSEW')
-    self.loc_entry = tk.Entry(self, width=22, font=("MS Gothic", 68))
-    self.loc_entry.grid(row=2, column=1, sticky='EW')
-    self.singles_check = tk.Checkbutton(self, text="Melee Singles", 
-                                         variable=self.singles, 
-                                         font=("MS Gothic", 68))
-    self.singles_check.grid(row=3, column=1)
-    self.doubles_check = tk.Checkbutton(self, text="Melee Doubles", 
-                                         command=self.teammate, 
-                                         variable=self.doubles,
-                                         font=("MS Gothic", 68))
-    self.doubles_check.grid(row=4, column=1)
-    self.teammate_label = tk.Label(self, text="Teammate:", anchor='e', 
-                                    justify='right', font=("MS Gothic", 68))
-    self.teammate_label.grid(row=5, column=0, sticky='NSEW')
-    self.teammate_entry = tk.Entry(self, state='disabled', width=22, 
-                                    font=("MS Gothic", 68))
-    self.teammate_entry.grid(row=5, column=1, sticky='EW')
-    self.register = tk.Button(self, text="Register", font=("MS Gothic", 68),
-                               command=self.register)
-    self.register.grid(row=6, column=1, pady=40)
-    moal_photo = tk.PhotoImage(file="assets/MoaL.gif")
+
+    # Getting screen size data.
+    self.width = self.winfo_screenwidth()
+    self.height = self.winfo_screenheight()
+    size = (self.height/2, self.height/2)
+    self.framewidth = self.width - (self.height/2)
+    self.frameheight = self.height/6
+
+    #Setting Data Entry Fields
+    self.name_frame = entryFrame(self, self.framewidth, self.frameheight, 
+    	                         "Name: ")
+    self.name_frame.grid(row=0, column=0, sticky='NSEW')
+
+    self.tag_frame = entryFrame(self, self.framewidth, self.frameheight, 
+    	                        "Tag: ")
+    self.tag_frame.grid(row=1, column=0, sticky='NSEW')
+
+    self.loc_frame = entryFrame(self, self.framewidth, self.frameheight, 
+    	                        "Location: ")
+    self.loc_frame.grid(row=2, column=0, sticky='NSEW')
+
+    self.tourn_frame = tournFrame(self, self.framewidth, self.frameheight)
+    self.tourn_frame.grid(row=3, column=0, sticky='NSEW')
+
+    self.teammate_frame = entryFrame(self, self.framewidth, self.frameheight, 
+    	                             "Teammate: ")
+    self.teammate_frame.grid(row=4, column=0, sticky='NSEW')
+    self.teammate_frame.entry.configure(state='disabled')
+
+    self.reg_frame = regFrame(self, self.framewidth, self.frameheight)
+    self.reg_frame.grid(row=5, column=0, sticky='NSEW')
+    
+    # Setting Images
+    moal_pil = Image.open("assets/TOP.gif")
+    moal_pil.thumbnail(size, Image.ANTIALIAS)
+    moal_photo = ImageTk.PhotoImage(moal_pil)
     self.moal_logo = tk.Label(self,  image=moal_photo)
     self.moal_logo.photo = moal_photo
-    self.moal_logo.grid(row=0, column=3, rowspan=3)
-    pitt_smash_photo = tk.PhotoImage(file="assets/PittSmash.gif")
+    self.moal_logo.grid(row=0, column=1, rowspan=3)
+
+    pitt_smash_pil = Image.open("assets/BOTTOM.gif")
+    pitt_smash_pil.thumbnail(size, Image.ANTIALIAS)
+    pitt_smash_photo = ImageTk.PhotoImage(pitt_smash_pil)
     self.pitt_logo = tk.Label(self, image=pitt_smash_photo)
     self.pitt_logo.photo = pitt_smash_photo
-    self.pitt_logo.grid(row=3, column=3, rowspan=4)
+    self.pitt_logo.grid(row=3, column=1, rowspan=3)
+
+    #Spawn Thread
     self.thread = dataThread('test', self.event, lock)
     self.thread.start()
 
@@ -75,31 +81,36 @@ class GUI(tk.Tk):
     return "break"
 
   def teammate(self):
-    if self.doubles.get() == 0:
-      self.teammate_entry.configure(state='disabled')
+    if self.tourn_frame.doubles.get() == 0:
+      self.teammate_frame.entry.configure(state='disabled')
     else:
-      self.teammate_entry.configure(state='normal')
+      self.teammate_frame.entry.configure(state='normal')
 
-  def register(self):
-    name = self.name_entry.get()
-    tag = self.tag_entry.get()
-    location = self.loc_entry.get()
+  def register(self):    
+    name = self.name_frame.var.get()
+    tag = self.tag_frame.var.get()
+    location = self.loc_frame.var.get()
     if name == '' or tag == '' or location == '':
       return
+    #print name
+    #print tag
+    #print location
     entrant = Entrant(self.event, name, tag, location)
     Tournament_Entrant(self.event.tournaments.tournaments[0], entrant)
-    #Tournament_Entrant(venue, entrant)
-    if self.singles.get() == 1:
+    Tournament_Entrant(venue, entrant)
+    if self.tourn_frame.singles.get() == 1:
+      #print "Singles"
       Tournament_Entrant(self.event.tournaments.tournaments[1], entrant)
-      #Tournament_Entrant(singles, entrant)
-    if self.doubles.get() == 1:
-      mate = self.teammate_entry.get()
+      Tournament_Entrant(singles, entrant)
+    if self.tourn_frame.doubles.get() == 1:
+      mate = self.teammate_frame.var.get()
+      #print mate
       Tournament_Entrant(self.event.tournaments.tournaments[2], entrant, mate)
-      #Tournament_Entrant(doubles, entrant)
-    self.name_entry.delete(0, 'end')
-    self.tag_entry.delete(0, 'end')
-    self.loc_entry.delete(0, 'end')
-    self.teammate_entry.delete(0, 'end')
+      Tournament_Entrant(doubles, entrant)
+    self.name_frame.var.set("")
+    self.tag_frame.var.set("")
+    self.loc_frame.var.set("")
+    self.teammate_frame.var.set("")
     #pickle.dump(self.event, open("MoaL.pkl", "wb"), -1)
 
   def close(self):
@@ -107,6 +118,46 @@ class GUI(tk.Tk):
     while self.thread.isAlive():
       pass
     self.destroy()
+
+class entryFrame(tk.Frame):
+  def __init__(self, parent, w, h, labeltext):
+    tk.Frame.__init__(self, parent, width=w, height=h, colormap="new")
+    self.parent = parent
+    self.pack_propagate(0)
+    self.var = tk.StringVar()
+    self.label = tk.Label(self, text=labeltext, anchor='e', justify='right', 
+    	                  font=('MS GOTHIC', 54))
+    self.label.pack(side="left", fill="both")
+    self.entry = tk.Entry(self, textvariable=self.var, 
+                          font=('MS GOTHIC', 54))
+    self.entry.pack(side="right")
+
+class tournFrame(tk.Frame):
+  def __init__(self, parent, w, h):
+    tk.Frame.__init__(self, parent, width=w, height=h, colormap="new")
+    self.parent = parent
+    self.pack_propagate(0)
+    self.singles = tk.IntVar()
+    self.doubles = tk.IntVar()
+    self.single_check = tk.Checkbutton(self, text='Melee Singles',
+                                        variable=self.singles,
+                                        font=('MS GOTHIC', 36))
+    self.single_check.pack(side='left', fill='both')
+    self.double_check = tk.Checkbutton(self, text='Melee Doubles', 
+    	                               command=self.parent.teammate, 
+    	                               variable=self.doubles, 
+    	                               font=('MS GOTHIC', 36))
+    self.double_check.pack(side='right', fill='both') 
+
+class regFrame(tk.Frame):
+  def __init__(self, parent, w, h):
+    tk.Frame.__init__(self, parent, width=w, height=h, colormap="new")
+    self.parent = parent
+    self.pack_propagate(0)
+    self.button = tk.Button(self, text="Register", 
+                            command=self.parent.register, 
+                            font=('MS GOTHIC', 54))
+    self.button.place(relx=.5, rely=.5, anchor='center')
 
 if __name__ == '__main__':
   app = GUI(None)
