@@ -2,12 +2,16 @@ import threading
 import sys
 import os
 import time
-import msvcrt
 import pickle
 
 from library.event import *
 
 exitFlag = 0
+OS = sys.platform
+if OS == 'win32':
+  import msvcrt
+if OS == 'linux' or OS == 'linux2':
+  import select as sel
 
 def print_path(path):
   for i in path:
@@ -50,6 +54,9 @@ def select(context, path, number):
     return item
   return context
 
+def outout(root):
+  pass
+
 class dataThread(threading.Thread):
   def __init__(self, name, data, lock):
     threading.Thread.__init__(self)
@@ -66,7 +73,10 @@ class dataThread(threading.Thread):
 
   def access_data_base(self):
     while not self.exitFlag:
-      user_input = self.read_input("Access the Data base? (Y, y): ")
+      if OS == 'win32':
+        user_input = self.read_input("Access the Data base? (Y, y): ")
+      elif OS == 'linux2':
+        user_input = self.read_in("Access the Data base? (Y, y): ")
       if user_input != '':
         print ""
         if user_input == 'Y' or user_input == 'y':
@@ -92,6 +102,24 @@ class dataThread(threading.Thread):
       return inputs
     else:
       return ''
+
+  def read_in(self, caption, timeout=1):
+    start_time = time.time()
+    line = ''
+    if self.flag == 0:
+      sys.stdout.write('%s'%(caption))
+      self.flag = 1
+    while True:
+      if sys.stdin in sel.select([sys.stdin], [], [], 0)[0]:
+        line = sys.stdin.readline()
+        line = line[:-1]
+        if line != '':
+          self.flag = 0
+          return line
+      if (time.time() - start_time) > timeout:
+        if line != '':
+          self.flag = 0
+        return ''
 
   def start_data_base(self):
     root = ''
@@ -135,8 +163,10 @@ class dataThread(threading.Thread):
         print "Data has been saved."
       elif string_compare(parts[0], 'add'):
         context.add()
+      elif string_compare(parts[0], 'output'):
+        output(root)
       elif not(string_compare(parts[0], 'q') 
                 and string_compare(parts[0], 'Q')):
         print (parts[0] + " is not a valid command.  "
           "Enter 'help' for a list of commands.")
-   ## pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1)
+   ## pickle.dump(root, open(root.get_name() + ".pkl", "wb"), -1

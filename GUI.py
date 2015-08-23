@@ -3,8 +3,69 @@ import pickle
 
 from PIL import Image, ImageTk
 
-from dataThread import dataThread
+from library.dataThread import dataThread
 from library.event import *
+from library.SPPServer import serverThread
+
+def main():
+  #Get info about tournament
+  inp = raw_input("Full Reg (F) or Server Reg (S)")
+  if inp == "F": 
+    app = GUI(None)
+    app.mainloop()
+  elif inp == "S":
+    app = Simple(None)
+    app.mainloop()
+
+class Simple(tk.Tk):
+  def __init__(self, parent):
+    tk.Tk.__init__(self, parent)
+    self.parent = parent
+    self.title("Man on a Ledge Registration.")
+    self.protocol('WM_DELETE_WINDOW', self.close)
+    # Chage to false in release
+    self.state = False
+    self.toggle_fullscreen()
+    self.bind('<F11>', self.toggle_fullscreen)
+    self.bind('<Escape>', self.disable_fullscreen)
+    self.lock = ''
+    #load Data
+    self.event = pickle.load(open("MoaL.pkl", "rb"))
+ 
+    moal_pil = Image.open("assets/TOP.gif")
+    moal_photo = ImageTk.PhotoImage(moal_pil)
+    self.moal_logo = tk.Label(self,  image=moal_photo)
+    self.moal_logo.photo = moal_photo
+    self.moal_logo.pack(side='left', fill='both')
+    
+    pitt_smash_pil = Image.open("assets/BOTTOM.gif")    
+    pitt_smash_photo = ImageTk.PhotoImage(pitt_smash_pil)
+    self.pitt_logo = tk.Label(self, image=pitt_smash_photo)
+    self.pitt_logo.photo = pitt_smash_photo
+    self.pitt_logo.pack(side='right', fill='both')
+
+    self.thread = dataThread('data', self.event, self.lock)
+    self.thread1 = serverThread('server', self.event, self.lock)
+    self.thread.start()
+    self.thread1.start()
+
+  def toggle_fullscreen(self, event=None):
+    self.state = not self.state
+    self.attributes("-fullscreen", self.state)
+    return "break"
+
+  def disable_fullscreen(self, event=None):
+    self.attributes("-fullscreen", False)
+    return "break"
+
+  def close(self):
+    self.thread.exitFlag = 1
+    self.thread1.exitFlag = 1
+    while self.thread.isAlive():
+      pass
+    while self.thread1.isAlive():
+      pass
+    self.destroy()
 
 class GUI(tk.Tk):
   def __init__(self, parent):
@@ -17,7 +78,7 @@ class GUI(tk.Tk):
     self.toggle_fullscreen()
     self.bind('<F11>', self.toggle_fullscreen)
     self.bind('<Escape>', self.disable_fullscreen)
-    lock = ''
+    self.lock = ''
     # Create event and venue and doubles singles etc.
     self.event = pickle.load(open("MoaL.pkl", "rb"))
 
@@ -60,7 +121,7 @@ class GUI(tk.Tk):
     self.moal_logo.photo = moal_photo
     self.moal_logo.grid(row=0, column=1, rowspan=3)
 
-    pitt_smash_pil = Image.open("assets/BOTTOM.gif")
+    pitt_smash_pil = Image.open("assets/BOTTOM.gif")    
     pitt_smash_pil.thumbnail(size, Image.ANTIALIAS)
     pitt_smash_photo = ImageTk.PhotoImage(pitt_smash_pil)
     self.pitt_logo = tk.Label(self, image=pitt_smash_photo)
@@ -68,7 +129,7 @@ class GUI(tk.Tk):
     self.pitt_logo.grid(row=3, column=1, rowspan=3)
 
     #Spawn Thread
-    self.thread = dataThread('test', self.event, lock)
+    self.thread = dataThread('data', self.event, self.lock)
     self.thread.start()
 
   def toggle_fullscreen(self, event=None):
@@ -97,16 +158,16 @@ class GUI(tk.Tk):
     #print location
     entrant = Entrant(self.event, name, tag, location)
     Tournament_Entrant(self.event.tournaments.tournaments[0], entrant)
-    Tournament_Entrant(venue, entrant)
+    #Tournament_Entrant(venue, entrant)
     if self.tourn_frame.singles.get() == 1:
       #print "Singles"
       Tournament_Entrant(self.event.tournaments.tournaments[1], entrant)
-      Tournament_Entrant(singles, entrant)
+      #Tournament_Entrant(singles, entrant)
     if self.tourn_frame.doubles.get() == 1:
       mate = self.teammate_frame.var.get()
       #print mate
       Tournament_Entrant(self.event.tournaments.tournaments[2], entrant, mate)
-      Tournament_Entrant(doubles, entrant)
+      #Tournament_Entrant(doubles, entrant)
     self.name_frame.var.set("")
     self.tag_frame.var.set("")
     self.loc_frame.var.set("")
@@ -160,5 +221,4 @@ class regFrame(tk.Frame):
     self.button.place(relx=.5, rely=.5, anchor='center')
 
 if __name__ == '__main__':
-  app = GUI(None)
-  app.mainloop()
+  main()
