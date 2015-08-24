@@ -1,7 +1,7 @@
 import bluetooth
 import threading
 
-from library.event import *
+from event import *
 
 name="bt_server"
 uuid="00001101-0000-1000-8000-00805F9B34FB"
@@ -24,7 +24,7 @@ def runServer():
     inputSocket, address=serverSocket.accept()
     # print "Got connection with" , address
     data=inputSocket.recv(1024)
-    # print "received [%s] \n " % data    
+    print "received [%s] \n " % data    
     inputSocket.close()
     serverSocket.close()  
     return data
@@ -62,6 +62,7 @@ class serverThread(threading.Thread):
                          doubles)
 
 if __name__ == '__main__':
-    #data = runServer()  
-    data = "Brian;Mordicon;PGH;1;Kofi"
+  while True:  
+    data = runServer()  
+    
     

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     TextView out;
+    Button button;
     private static final int REQUEST_ENABLE_BT = 1;
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         out = (TextView) findViewById(R.id.out);
+        button = (Button)findViewById(R.id.Register);
         out.append("\n...In Create()...");
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         CheckBTState();
@@ -42,47 +45,6 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         out.append("\n...In onStart()...");
-    }
-
-    public void onResume() {
-        super.onResume();
-        out.append("\n...In onResume...\n...Attempting client connect...");
-        BluetoothDevice device = btAdapter.getRemoteDevice(address);
-        try {
-            btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-        } catch (IOException e) {
-            AlertBox("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-        }
-        btAdapter.cancelDiscovery();
-        try {
-            btSocket.connect();
-            out.append("\n...Connection established and data link opened...");
-        } catch (IOException e) {
-            try {
-                btSocket.close();
-            } catch (IOException e2) {
-                AlertBox("Fatal Error", "In onResume() and unable to close Socket" + e.getMessage() + ".");
-            }
-        }
-        out.append("\n...Sending message to server...");
-        String message = "Brain;Mord;PGH;1;Kofi;\n";
-        out.append("\n\n...The message that will be sent is: " + message);
-        try {
-            outStream = btSocket.getOutputStream();
-        } catch (IOException e) {
-            AlertBox("Fatal Error", "Out put stream creation failed " + e.getMessage() + ".");
-        }
-        byte[] msgBuffer = message.getBytes();
-        try {
-            outStream.write(msgBuffer);
-        } catch (IOException e) {
-            String msg = "In onResume() and on exception occured during write: " + e.getMessage() + ".";
-            if (address.equals("00:00:00:00:00:00")){
-                msg = msg + "\n\nUpdate Address";
-            }
-            msg = msg +"\n\nCheck SPP UUID";
-            AlertBox("Fatal Error", msg);
-        }
     }
 
     public void onPause() {
@@ -178,5 +140,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void reg(View v) {
+        out.append("\n...In onResume...\n...Attempting client connect...");
+        BluetoothDevice device = btAdapter.getRemoteDevice(address);
+        try {
+            btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+        } catch (IOException e) {
+            AlertBox("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
+        }
+        btAdapter.cancelDiscovery();
+        try {
+            btSocket.connect();
+            out.append("\n...Connection established and data link opened...");
+        } catch (IOException e) {
+            try {
+                btSocket.close();
+            } catch (IOException e2) {
+                AlertBox("Fatal Error", "In onResume() and unable to close Socket" + e.getMessage() + ".");
+            }
+        }
+        out.append("\n...Sending message to server...");
+        String message = "Brain;Mord;PGH;1;Kofi;\n";
+        out.append("\n\n...The message that will be sent is: " + message);
+        try {
+            outStream = btSocket.getOutputStream();
+        } catch (IOException e) {
+            AlertBox("Fatal Error", "Out put stream creation failed " + e.getMessage() + ".");
+        }
+        byte[] msgBuffer = message.getBytes();
+        try {
+            outStream.write(msgBuffer);
+        } catch (IOException e) {
+            String msg = "In onResume() and on exception occured during write: " + e.getMessage() + ".";
+            if (address.equals("00:00:00:00:00:00")) {
+                msg = msg + "\n\nUpdate Address";
+            }
+            msg = msg + "\n\nCheck SPP UUID";
+            AlertBox("Fatal Error", msg);
+        }
     }
 }
