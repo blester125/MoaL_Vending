@@ -12,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -24,6 +26,13 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
     TextView out;
     Button button;
+    EditText nameField;
+    EditText tagField;
+    EditText locField;
+    EditText teammateField;
+    CheckBox SingleBox;
+    CheckBox DoubleBox;
+    boolean enabled;
     private static final int REQUEST_ENABLE_BT = 1;
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -37,6 +46,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         out = (TextView) findViewById(R.id.out);
         button = (Button)findViewById(R.id.Register);
+        nameField = (EditText)findViewById(R.id.Name);
+        tagField = (EditText)findViewById(R.id.Tag);
+        locField = (EditText)findViewById(R.id.Location);
+        teammateField = (EditText)findViewById(R.id.Teammate);
+        SingleBox = (CheckBox)findViewById(R.id.Singles);
+        DoubleBox = (CheckBox)findViewById(R.id.Doubles);
+        enabled=false;
         out.append("\n...In Create()...");
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         CheckBTState();
@@ -162,7 +178,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         out.append("\n...Sending message to server...");
-        String message = "Brain;Mord;PGH;1;Kofi;\n";
+        String name = nameField.getText().toString();
+        nameField.setText("");
+        String tag = tagField.getText().toString();
+        tagField.setText("");
+        String location = locField.getText().toString();
+        locField.setText("");
+        String mate = teammateField.getText().toString();
+        teammateField.setText("");
+        String singles = "";
+        boolean Single = SingleBox.isChecked();
+        if (Single) {
+            singles = "1";
+        }
+        SingleBox.setChecked(false);
+        DoubleBox.setChecked(false);
+        String message = name + ";" + tag + ";" + location + ";" + singles + ";" + mate;
         out.append("\n\n...The message that will be sent is: " + message);
         try {
             outStream = btSocket.getOutputStream();
@@ -179,6 +210,16 @@ public class MainActivity extends AppCompatActivity {
             }
             msg = msg + "\n\nCheck SPP UUID";
             AlertBox("Fatal Error", msg);
+        }
+    }
+
+    public void enable(View v) {
+        if (enabled == true) {
+            teammateField.setEnabled(false);
+            enabled = false;
+        } else {
+            teammateField.setEnabled(true);
+            enabled = true;
         }
     }
 }
