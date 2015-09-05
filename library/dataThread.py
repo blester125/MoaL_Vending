@@ -5,6 +5,7 @@ import time
 import pickle
 
 from library.event import *
+from library.challonge import *
 
 exitFlag = 0
 OS = sys.platform
@@ -54,7 +55,30 @@ def select(context, path, number):
     return item
   return context
 
-def outout(root):
+def output(root, tourntype):
+  ent_list = []
+  if string_compare(tourntype, "singles"):
+    #fetch singles list
+    tourntype = "Singles"
+    ent_list = ["Mordicon", "Kofi", "Beanwolf", "Bambi", "Andrew"]
+  elif string_compare(tourntype, "doubles"):
+    #fetch doubles list
+    tourntype = "Doubles"
+  else:
+    return
+  #create tournament
+  #add entrant list
+  api.set_credentials("mordicon", 
+                            "H2cqvzI6XJvV5X8GMhYjI4To3QtziDOxEFFQShfS")
+  bracket_name = root.name + " Melee " + tourntype
+  bracket_url = bracket_name.replace(" ", "")
+  t = tournaments.create(bracket_name, bracket_url, subdomain="moal",
+                               tournament_type="double elimination")
+  #t = tournaments.show("moal-" + bracket_url)
+  for i in ent_list:
+    participants.create(t['id'], i)
+
+def fetch(objlist):
   pass
 
 class dataThread(threading.Thread):
@@ -145,7 +169,7 @@ class dataThread(threading.Thread):
               or string_compare(parts[0], 'cd')):
         if len(parts) == 1:
           print "Usage: select line_number."
-          continuegit 
+          continue
         try:
           number = int(parts[1])
         except ValueError:
@@ -164,7 +188,14 @@ class dataThread(threading.Thread):
       elif string_compare(parts[0], 'add'):
         context.add()
       elif string_compare(parts[0], 'output'):
-        output(root)
+        if len(parts) == 1:
+          print "Usage: output singles|doubles"
+          continue
+        #if (not string_compare(parts[1], "singles") or 
+        #    not string_compare(parts[1],  "doubles")):
+        #  print 'Please specify "singles" or "doubles"'
+        #  continue
+        output(root, parts[1])
       elif not(string_compare(parts[0], 'q') 
                 and string_compare(parts[0], 'Q')):
         print (parts[0] + " is not a valid command.  "

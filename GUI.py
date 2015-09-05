@@ -2,14 +2,27 @@ import Tkinter as tk
 import pickle
 
 from PIL import Image, ImageTk
+from datetime import *
 
 from library.dataThread import dataThread
 from library.event import *
-from library.SPPServer import serverThread
+#from library.SPPServer import serverThread
+
+event = Event(TO="Brian & Kofi", date=datetime.date)
+venue = Tournament(event, "Venue", 1)
+singles = Tournament(event, "Singles", 1)
+doubles = Tournament(event, "Doubles", 1)
 
 def main():
   #Get info about tournament
-  inp = raw_input("Full Reg (F) or Server Reg (S)")
+  number = raw_input("What number Moal is this? ")
+  try:
+    num = int(number)
+  except ValueError:
+    print "Please enter a number."
+    exit()
+  event.name = "MoaL " + str(num)
+  inp = raw_input("Full Reg (F) or Server Reg (S) ")
   if inp == "F": 
     app = GUI(None)
     app.mainloop()
@@ -30,8 +43,8 @@ class Simple(tk.Tk):
     self.bind('<Escape>', self.disable_fullscreen)
     self.lock = ''
     #load Data
-    self.event = pickle.load(open("MoaL.pkl", "rb"))
- 
+    #self.event = pickle.load(open("MoaL.pkl", "rb"))
+    self.event = event
     moal_pil = Image.open("assets/TOP.gif")
     moal_photo = ImageTk.PhotoImage(moal_pil)
     self.moal_logo = tk.Label(self,  image=moal_photo)
@@ -80,8 +93,8 @@ class GUI(tk.Tk):
     self.bind('<Escape>', self.disable_fullscreen)
     self.lock = ''
     # Create event and venue and doubles singles etc.
-    self.event = pickle.load(open("MoaL.pkl", "rb"))
-
+    #self.event = pickle.load(open("MoaL.pkl", "rb"))
+    self.event = event
     # Getting screen size data.
     self.width = self.winfo_screenwidth()
     self.height = self.winfo_screenheight()
@@ -172,6 +185,9 @@ class GUI(tk.Tk):
     self.tag_frame.var.set("")
     self.loc_frame.var.set("")
     self.teammate_frame.var.set("")
+    self.teammate_frame.entry.configure(state='disabled')
+    self.tourn_frame.single_check.deselect()
+    self.tourn_frame.double_check.deselect()
     #pickle.dump(self.event, open("MoaL.pkl", "wb"), -1)
 
   def close(self):
