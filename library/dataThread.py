@@ -56,30 +56,62 @@ def select(context, path, number):
   return context
 
 def output(root, tourntype):
-  ent_list = []
+  ent_list = ["Taki", "Mord", "Kofi", "Sams"]
   if string_compare(tourntype, "singles"):
     #fetch singles list
     tourntype = "Singles"
-    ent_list = ["Mordicon", "Kofi", "Beanwolf", "Bambi", "Andrew"]
+    ent_list = fetch_singles(root)
+    ent_list = seed_sort(ent_list)
   elif string_compare(tourntype, "doubles"):
     #fetch doubles list
     tourntype = "Doubles"
+    ent_list = fetch_doubles(root)
   else:
     return
   #create tournament
-  #add entrant list
   api.set_credentials("mordicon", 
                             "H2cqvzI6XJvV5X8GMhYjI4To3QtziDOxEFFQShfS")
   bracket_name = root.name + " Melee " + tourntype
   bracket_url = bracket_name.replace(" ", "")
   t = tournaments.create(bracket_name, bracket_url, subdomain="moal",
                                tournament_type="double elimination")
-  #t = tournaments.show("moal-" + bracket_url)
+  #add entrants
   for i in ent_list:
     participants.create(t['id'], i)
 
-def fetch(objlist):
-  pass
+def fetch_singles(root):
+  list = []
+  for i in root.tournaments.tournaments[1].entrants:
+    list.append(i.name) 
+  return list
+
+def fetch_doubles(root):
+  list = []
+  #make list
+  for i in root.tournaments.tournaments[2].entrants:
+    team = ''
+    for j in i.tournaments:
+      if j.name == "Doubles":
+        team = j.get_teammate()
+    item = (i.name, team)
+    list.append(item)
+  print list
+  remove_doubles(list)
+  list2 = []
+  for i in list:
+    list2.append(i[0] + " + " + i[1])
+  return list2
+
+def remove_doubles(list):
+  for i in list:
+    person_1 = i[0]
+    person_2 = i[1]
+    for j in list:
+      if string_compare(j[0], person_2) and string_compare(j[1], person_1):
+        list.remove(j)
+
+def seed_sort(ent_list):
+  return ent_list
 
 class dataThread(threading.Thread):
   def __init__(self, name, data, lock):

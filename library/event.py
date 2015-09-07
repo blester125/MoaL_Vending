@@ -75,6 +75,7 @@ class Entrant(object):
     self.number = event.get_entrants()
     self.amount_owed = 0
     self.location = location
+    self.teammate = ''
     self.tournaments = []
     self.tournaments_parents = []
 
@@ -174,7 +175,7 @@ class Tournaments(object):
 class Tournament(object):
   """Data about a tournament at an event.
    
-  To be added to event.tournaemts
+  To be added to event.tournamets
 
   """
   def __init__(self, event, name, price, team=False):

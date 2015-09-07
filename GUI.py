@@ -1,11 +1,13 @@
 import Tkinter as tk
 import pickle
+import time as TIME
 
 from PIL import Image, ImageTk
 from datetime import *
 
 from library.dataThread import dataThread
 from library.event import *
+from library.pay import wait_for_payment
 #from library.SPPServer import serverThread
 
 event = Event(TO="Brian & Kofi", date=datetime.date)
@@ -166,17 +168,18 @@ class GUI(tk.Tk):
     location = self.loc_frame.var.get()
     if name == '' or tag == '' or location == '':
       return
-    #print name
-    #print tag
-    #print location
+    singles = self.tourn_frame.singles.get()
+    doubles = self.tourn_frame.doubles.get()
+    #payment
+    self.check_for_payment(1 + singles + doubles)
     entrant = Entrant(self.event, name, tag, location)
     Tournament_Entrant(self.event.tournaments.tournaments[0], entrant)
     #Tournament_Entrant(venue, entrant)
-    if self.tourn_frame.singles.get() == 1:
+    if singles == 1:
       #print "Singles"
       Tournament_Entrant(self.event.tournaments.tournaments[1], entrant)
       #Tournament_Entrant(singles, entrant)
-    if self.tourn_frame.doubles.get() == 1:
+    if doubles == 1:
       mate = self.teammate_frame.var.get()
       #print mate
       Tournament_Entrant(self.event.tournaments.tournaments[2], entrant, mate)
@@ -189,6 +192,15 @@ class GUI(tk.Tk):
     self.tourn_frame.single_check.deselect()
     self.tourn_frame.double_check.deselect()
     #pickle.dump(self.event, open("MoaL.pkl", "wb"), -1)
+
+  def check_for_payment(self, price):
+    pass
+    #self.pay = payWindow(self, price)
+    #wait_for_payment(price)
+    #for i in range(100):
+    #    print "BUtt"
+    #TIME.sleep(self.pay.get())
+    #self.pay.destroy()
 
   def close(self):
     self.thread.exitFlag = 1
@@ -235,6 +247,18 @@ class regFrame(tk.Frame):
                             command=self.parent.register, 
                             font=('MS GOTHIC', 54))
     self.button.place(relx=.5, rely=.5, anchor='center')
+
+class payWindow(tk.Toplevel):
+  def __init__(self, parent, price):
+    tk.Toplevel.__init__(self)
+    self.title("Please Pay")
+    self.parent = parent
+    self.label = tk.Label(self, text="Please Pay $" + str(price))
+    self.label.pack()
+    self.time = 3
+
+  def get(self):
+    return self.time
 
 if __name__ == '__main__':
   main()
