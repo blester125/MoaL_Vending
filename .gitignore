@@ -3,3 +3,4 @@ examples
 *.pkl
 example_data.py
 library/*.pyc
+config.txt

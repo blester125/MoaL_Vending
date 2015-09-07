@@ -14,6 +14,20 @@ if OS == 'win32':
 if OS == 'linux' or OS == 'linux2':
   import select as sel
 
+USERNAME = ''
+API_KEY = ''
+config_file = open("config.txt", 'r')
+for line in config_file:
+  parts = line.split(":")
+  if parts[0] == "username":
+    if parts[1].endswith('\n'):
+      parts[1] = parts[1][:-1]
+    USERNAME = parts[1]
+  elif parts[0] == "APIKey":
+    if parts[1].endswith('\n'):
+      parts[1] = parts[1][:-1]
+    API_KEY = parts[1]
+  
 def print_path(path):
   for i in path:
     if isinstance(i, Entrant):
@@ -69,33 +83,35 @@ def output(root, tourntype):
   else:
     return
   #create tournament
-  api.set_credentials("mordicon", 
-                            "H2cqvzI6XJvV5X8GMhYjI4To3QtziDOxEFFQShfS")
+  api.set_credentials(USERNAME, API_KEY)
   bracket_name = root.name + " Melee " + tourntype
   bracket_url = bracket_name.replace(" ", "")
   t = tournaments.create(bracket_name, bracket_url, subdomain="moal",
                                tournament_type="double elimination")
   #add entrants
+  fout = open(bracket_url + ".txt", 'w+')
   for i in ent_list:
+    fout.write(i + "\n")
     participants.create(t['id'], i)
 
 def fetch_singles(root):
   list = []
+  #change to look for singles
   for i in root.tournaments.tournaments[1].entrants:
-    list.append(i.name) 
+    list.append(i.tag) 
   return list
 
 def fetch_doubles(root):
   list = []
   #make list
+  #change to look for doubles
   for i in root.tournaments.tournaments[2].entrants:
     team = ''
     for j in i.tournaments:
       if j.name == "Doubles":
         team = j.get_teammate()
-    item = (i.name, team)
+    item = (i.tag, team)
     list.append(item)
-  print list
   remove_doubles(list)
   list2 = []
   for i in list:
@@ -127,6 +143,7 @@ class dataThread(threading.Thread):
     self.access_data_base()
     print "\nEnding Thread: " + self.name
 
+  # rewrite to make it look better for linux
   def access_data_base(self):
     while not self.exitFlag:
       if OS == 'win32':
@@ -159,6 +176,7 @@ class dataThread(threading.Thread):
     else:
       return ''
 
+  # rewrite to make it look better for linux
   def read_in(self, caption, timeout=1):
     start_time = time.time()
     line = ''
