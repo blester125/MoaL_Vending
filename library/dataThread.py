@@ -70,7 +70,6 @@ def select(context, path, number):
   return context
 
 def output(root, tourntype):
-  ent_list = ["Taki", "Mord", "Kofi", "Sams"]
   if string_compare(tourntype, "singles"):
     #fetch singles list
     tourntype = "Singles"
@@ -128,6 +127,12 @@ def remove_doubles(list):
 
 def seed_sort(ent_list):
   return ent_list
+
+def pizza(root):
+	total_pizza = 0
+	for i in root.entrants.entrants:
+		total_pizza += i.pizza
+	print "Buy " + str(total_pizza / 6.0) + " Pizza(s)"
 
 class dataThread(threading.Thread):
   def __init__(self, name, data, lock):
@@ -246,6 +251,8 @@ class dataThread(threading.Thread):
         #  print 'Please specify "singles" or "doubles"'
         #  continue
         output(root, parts[1])
+      elif string_compare(parts[0], 'pizza'):
+      	pizza(root)
       elif not(string_compare(parts[0], 'q') 
                 and string_compare(parts[0], 'Q')):
         print (parts[0] + " is not a valid command.  "

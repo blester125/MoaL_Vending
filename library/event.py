@@ -68,7 +68,7 @@ class Entrants(object):
     print 'Nothing to add in this context'
 
 class Entrant(object):
-  def __init__(self, event, name='', tag='', location=''):
+  def __init__(self, event, name='', tag='', location='', pizza=0):
     self.name = name
     self.tag = tag
     event.add_entrant(self)
@@ -78,6 +78,7 @@ class Entrant(object):
     self.teammate = ''
     self.tournaments = []
     self.tournaments_parents = []
+    self.pizza = pizza
 
   def add_tournament(self, tournament):
     self.tournaments.append(tournament)

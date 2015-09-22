@@ -24,13 +24,13 @@ def main():
     print "Please enter a number."
     exit()
   event.name = "MoaL " + str(num)
-  inp = raw_input("Full Reg (F) or Server Reg (S) ")
-  if inp == "F": 
-    app = GUI(None)
-    app.mainloop()
-  elif inp == "S":
-    app = Simple(None)
-    app.mainloop()
+  #inp = raw_input("Full Reg (F) or Server Reg (S) ")
+  #if inp == "F": 
+  app = GUI(None)
+  app.mainloop()
+  #elif inp == "S":
+  #  app = Simple(None)
+  #  app.mainloop()
 
 class Simple(tk.Tk):
   def __init__(self, parent):
@@ -170,9 +170,20 @@ class GUI(tk.Tk):
       return
     singles = self.tourn_frame.singles.get()
     doubles = self.tourn_frame.doubles.get()
-    #payment
-    self.check_for_payment(1 + singles + doubles)
-    entrant = Entrant(self.event, name, tag, location)
+    pizza = self.tourn_frame.pizza.get()
+    if self.tourn_frame.pizza2.get() == 1:
+      pizza += 1
+    print "Name: " + name
+    print "Tag: " + tag
+    print "Location: " + location
+    print "Singles: " + str(singles)
+    print "Doubles: " + str(doubles)
+    print "Teammate: " + self.teammate_frame.var.get()
+    print "Pizza: " + str(pizza)
+    self.reg_frame.field['text'] = "Please Pay: " + str(singles + 
+                                                        doubles + 1 + 
+                                                        pizza)
+    entrant = Entrant(self.event, name, tag, location, pizza=pizza)
     Tournament_Entrant(self.event.tournaments.tournaments[0], entrant)
     #Tournament_Entrant(venue, entrant)
     if singles == 1:
@@ -191,6 +202,8 @@ class GUI(tk.Tk):
     self.teammate_frame.entry.configure(state='disabled')
     self.tourn_frame.single_check.deselect()
     self.tourn_frame.double_check.deselect()
+    self.tourn_frame.pizza_check.deselect()
+    self.tourn_frame.pizza2_check.deselect()
     #pickle.dump(self.event, open("MoaL.pkl", "wb"), -1)
 
   def check_for_payment(self, price):
@@ -215,11 +228,11 @@ class entryFrame(tk.Frame):
     self.pack_propagate(0)
     self.var = tk.StringVar()
     self.label = tk.Label(self, text=labeltext, anchor='e', justify='right', 
-    	                  font=('MS GOTHIC', 54))
-    self.label.pack(side="left", fill="both")
+    	                  font=('MS GOTHIC', 24))
+    self.label.pack(side="left")
     self.entry = tk.Entry(self, textvariable=self.var, 
-                          font=('MS GOTHIC', 54))
-    self.entry.pack(side="right")
+                          font=('MS GOTHIC', 24))
+    self.entry.pack(side="right", fill='x', expand=True)
 
 class tournFrame(tk.Frame):
   def __init__(self, parent, w, h):
@@ -230,13 +243,22 @@ class tournFrame(tk.Frame):
     self.doubles = tk.IntVar()
     self.single_check = tk.Checkbutton(self, text='Melee Singles',
                                         variable=self.singles,
-                                        font=('MS GOTHIC', 36))
+                                        font=('MS GOTHIC', 24))
     self.single_check.pack(side='left', fill='both')
     self.double_check = tk.Checkbutton(self, text='Melee Doubles', 
     	                               command=self.parent.teammate, 
     	                               variable=self.doubles, 
-    	                               font=('MS GOTHIC', 36))
+    	                               font=('MS GOTHIC', 24))
     self.double_check.pack(side='right', fill='both') 
+    self.pizza = tk.IntVar()
+    self.pizza_check = tk.Checkbutton(self, text='Pizza', variable=self.pizza,
+                                      font=('MS GOTHIC', 24))
+    self.pizza_check.pack(side='left', fill='both')
+    self.pizza2 = tk.IntVar()
+    self.pizza2_check = tk.Checkbutton(self, text='Pizza', 
+                                       variable=self.pizza2,
+                                       font=('MS GOTHIC', 24))
+    self.pizza2_check.pack(side='left', fill='both')
 
 class regFrame(tk.Frame):
   def __init__(self, parent, w, h):
@@ -245,8 +267,11 @@ class regFrame(tk.Frame):
     self.pack_propagate(0)
     self.button = tk.Button(self, text="Register", 
                             command=self.parent.register, 
-                            font=('MS GOTHIC', 54))
-    self.button.place(relx=.5, rely=.5, anchor='center')
+                            font=('MS GOTHIC', 36))
+    #self.button.place(relx=.5, rely=.5, anchor='center')
+    self.field = tk.Label(self, text="Please Pay: ", font=('MS GOTHIC', 24))
+    self.field.pack(side='left')
+    self.button.pack(side='right')
 
 class payWindow(tk.Toplevel):
   def __init__(self, parent, price):
