@@ -92,6 +92,7 @@ def output(root, tourntype):
   for i in ent_list:
     fout.write(i + "\n")
     participants.create(t['id'], i)
+  fout.close
 
 def fetch_singles(root):
   list = []
@@ -126,7 +127,22 @@ def remove_doubles(list):
         list.remove(j)
 
 def seed_sort(ent_list):
-  return ent_list
+  seed_list = []
+  new_list = []
+  fin = open("seed.txt", "r")
+  for line in fin:
+    line = line[:-1]
+    seed_list.append(line)
+  for i in seed_list:
+    if i in ent_list:
+      new_list.append(i)
+      ent_list.remove(i)
+  for i in ent_list:
+    new_list.append(i)
+  fin.close()
+  return new_list
+  for i in new_list:
+    print i
 
 def pizza(root):
 	total_pizza = 0
